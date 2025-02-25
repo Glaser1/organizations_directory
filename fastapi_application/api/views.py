@@ -1,5 +1,5 @@
 import math
-from typing import Annotated
+from typing import Annotated, Type, Optional
 
 from fastapi import APIRouter, Depends, status, Path, HTTPException, HTTPException, Query
 from sqlalchemy import select
@@ -102,17 +102,8 @@ async def get_organizations_by_area(
     session: AsyncSession = Depends(db_helper.get_db),
 ):
 
-    min_lat, max_lat, min_lon, max_lon = get_bbox(center_lat, center_lon, delta_km)
+    return await get_objects_by_area(Organization, center_lat, center_lon, delta_km, session, join_model=Building)
 
-    stmt = (
-        select(Organization)
-        .join(Building)
-        .where(Building.longitude.between(min_lon, max_lon))
-        .where(Building.latitude.between(min_lat, max_lat))
-    )
-
-    result = await session.scalars(stmt)
-    return result.all()
 
 @router.get("/buildings_by_area")
 async def get_buildings_by_area(
@@ -122,12 +113,34 @@ async def get_buildings_by_area(
     session: AsyncSession = Depends(db_helper.get_db),
 ):
 
+    return await get_objects_by_area(Building, center_lat, center_lon, delta_km, session)
+
+
+async def get_objects_by_area(
+    model: Type,
+    center_lat: Annotated[float, Query()],
+    center_lon: Annotated[float, Query()],
+    delta_km: Annotated[int, Query()],
+    session: AsyncSession = Depends(db_helper.get_db),
+    join_model: Optional[Type] = None,
+):
+
     min_lat, max_lat, min_lon, max_lon = get_bbox(center_lat, center_lon, delta_km)
 
+    stmt = select(model)
+
+    if join_model:
+        stmt = stmt.join(join_model)
+
     stmt = (
-        select(Building)
-        .where(Building.longitude.between(min_lon, max_lon))
-        .where(Building.latitude.between(min_lat, max_lat))
+        stmt.where(model.longitude.between(min_lon, max_lon))
+        if not join_model
+        else stmt.where(join_model.longitude.between(min_lon, max_lon))
+    )
+    stmt = (
+        stmt.where(model.latitude.between(min_lat, max_lat))
+        if not join_model
+        else stmt.where(join_model.longitude.between(min_lon, max_lon))
     )
 
     result = await session.scalars(stmt)
