@@ -62,7 +62,7 @@
         "id": 1,
         "title": "ООО «Рога и Копыта»",
         "building_id": 1,
-        "activity_ids": [2, 3]
+        "activity_ids": [1, 2, 3]
       },
       {
         "id": 2,
