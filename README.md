@@ -20,10 +20,10 @@ REST API application for the directory of Organizations, Buildings and Activitie
   ``` docker-compose up -d --build ```
   
 * Выполните миграцию в контейнерах: 
-  ``` docker compose exec  web poetry run alembic upgrade head  ```
+  ``` docker compose exec web poetry run alembic upgrade head  ```
 
 * Загрузите тестовые данные: 
-  ``` docker compose exec  web python3 fastapi_application/load_data.py ```
+  ``` docker compose exec web python3 fastapi_application/load_data.py ```
 
 
 ## Использование:
