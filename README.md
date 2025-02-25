@@ -12,7 +12,7 @@ REST API application for the directory of Organizations, Buildings and Activitie
     https://docs.docker.com/engine/install/    
     https://docs.docker.com/compose/install/
 
-* В корневой папке проекта создайте файл .env - в нем укажите переменные окружающей среды согласно шаблону .env.template;
+* В корневой папке проекта создайте файл .env.docker - в нем укажите переменные окружающей среды согласно шаблону .env.template;
 
 * Создайте docker-compose.yml на основе docker-compose.template.yml и укажите в нем переменные окружения согласно ранее созданному .env
 
