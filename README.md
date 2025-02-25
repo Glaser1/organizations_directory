@@ -30,121 +30,121 @@ REST API application for the directory of Organizations, Buildings and Activitie
 API предоставляет несколько эндопинтов для взаимодействия с организацмиями, зданиями и видами деятельностями:
 
 #### 1. Cписок всех организаций, находящихся в конкретном здании
-  URL: /api/building/{building_id}/organizations
-  Метод: GET
-
-  Тело ответа:
-
-  [
-    {
-      "title": "ООО «Рога и Копыта»",
-      "building_id": 1
-    }
-  ]
-
-#### 2. Список всех организаций, относящихся к указанному виду деятельности
-  URL: /api/activities/organizations/{activity_id}
-  Метод: GET
-
-  Тело ответа:
-
-  [
-    {
-      "title": "АвтоГруз Сервис",
-      "building_id": 2
-    }
-  ]
+    URL: /api/building/{building_id}/organizations
+    Метод: GET
+    
+    Тело ответа:
+    
+    [
+      {
+        "title": "ООО «Рога и Копыта»",
+        "building_id": 1
+      }
+    ]
+    
+    #### 2. Список всех организаций, относящихся к указанному виду деятельности
+    URL: /api/activities/organizations/{activity_id}
+    Метод: GET
+    
+    Тело ответа:
+    
+    [
+      {
+        "title": "АвтоГруз Сервис",
+        "building_id": 2
+      }
+    ]
 
 #### 3. Список организаций, находящихся в заданном радиусе/прямоугольной области относительно указанной точки на карте
-  URL: /api/organizations_by_area?center_lat=&center_lon=&delta_km=
-  Метод: GET
+    URL: /api/organizations_by_area?center_lat=&center_lon=&delta_km=
+    Метод: GET
+    
+    Тело ответа:
+    
+    [
+      {
+          "title": "ООО «Рога и Копыта»",
+          "id": 1,
+          "building_id": 1
+      },
+      {
+          "title": "АвтоГруз Сервис",
+          "id": 2,
+          "building_id": 2
+      },
+      {
+          "title": "АвтоЛюкс",
+          "id": 3,
+          "building_id": 2
+      }
+    ]
 
-  Тело ответа:
+#### 4. Список зданий, находящихся в заданном радиусе/прямоугольной области относительно указанной точки на карте
+    URL: /api/buildings_by_area?center_lat=&center_lon=&delta_km=
+    Метод: GET
+    
+    Тело ответа:
+    
+    [
+      {
+          "longitude": 37.618423,
+          "address": "г. Москва, ул. Блюхера, 32/1",
+          "id": 1,
+          "latitude": 55.751244
+      },
+      {
+          "longitude": 37.621856,
+          "address": "г. Москва, ул. Ленина 1, офис 3",
+          "id": 2,
+          "latitude": 55.753605
+      }
+    ]
 
-  [
+#### 5. Вывод информации об организации по её идентификатору
+    URL: /api/organizations/{organization_id}
+    Метод: GET
+    
+    Тело ответа:
+    
     {
         "title": "ООО «Рога и Копыта»",
         "id": 1,
         "building_id": 1
-    },
-    {
+    }
+
+#### 6. Поиск организаций по ввиду деятельности, включая вложенные (уровень вложенности видов деятельности ограничен 3 уровнями)
+    URL: /api/activities/{activity_title}/organizations
+    Метод: GET
+    
+    Тело ответа:
+    
+    [
+      {
         "title": "АвтоГруз Сервис",
         "id": 2,
         "building_id": 2
-    },
-    {
+      },
+      {
         "title": "АвтоЛюкс",
         "id": 3,
         "building_id": 2
-    }
-]
-
-#### 4. Список зданий, находящихся в заданном радиусе/прямоугольной области относительно указанной точки на карте
-  URL: /api/buildings_by_area?center_lat=&center_lon=&delta_km=
-  Метод: GET
-
-  Тело ответа:
-
-  [
-    {
-        "longitude": 37.618423,
-        "address": "г. Москва, ул. Блюхера, 32/1",
-        "id": 1,
-        "latitude": 55.751244
-    },
-    {
-        "longitude": 37.621856,
-        "address": "г. Москва, ул. Ленина 1, офис 3",
-        "id": 2,
-        "latitude": 55.753605
-    }
-  ]
-
-#### 5. Вывод информации об организации по её идентификатору
-  URL: /api/organizations/{organization_id}
-  Метод: GET
-
-  Тело ответа:
-
-  {
-      "title": "ООО «Рога и Копыта»",
-      "id": 1,
-      "building_id": 1
-  }
-
-#### 6. Поиск организаций по ввиду деятельности, включая вложенные (уровень вложенности видов деятельности ограничен 3 уровнями)
-  URL: /api/activities/{activity_title}/organizations
-  Метод: GET
-
-  Тело ответа:
-
-  [
-    {
-      "title": "АвтоГруз Сервис",
-      "id": 2,
-      "building_id": 2
-    },
-    {
-      "title": "АвтоЛюкс",
-      "id": 3,
-      "building_id": 2
-    }
-  ]
+      }
+    ]
 
 #### 7. поиск организации по названию
-   URL: /api/organizations/{organization_title}
-   Метод: GET
-
-   Тело ответа:
-
-   [
-    {
-      "title": "АвтоГруз Сервис",
-      "building_id": 2
-    },
-    {
-      "title": "АвтоЛюкс",
-      "building_id": 2
-    }
-  ]
+     URL: /api/organizations/{organization_title}
+     Метод: GET
+    
+     Тело ответа:
+    
+     [
+      {
+        "title": "АвтоГруз Сервис",
+        "building_id": 2
+      },
+      {
+        "title": "АвтоЛюкс",
+        "building_id": 2
+      }
+    ]
 
