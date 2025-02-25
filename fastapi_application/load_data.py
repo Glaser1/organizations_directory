@@ -32,16 +32,17 @@ async def seed_test_data():
                     title=org["title"],
                     building_id=org["building_id"],
                 )
+                await session.flush()
                 stmt = select(Activity).filter(Activity.id.in_(org["activity_ids"]))
                 activities = await session.scalars(stmt)
-                organization.activities = activities.all()
+                organization.activities.extend(activities)
                 session.add(organization)
-                await session.commit()
 
             for phone in data["phone_numbers"]:
                 session.add(PhoneNumber(**phone))
 
             await session.commit()
+
             print("Данные успешно добавлены")
         except Exception as e:
             await session.rollback()
