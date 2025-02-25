@@ -33,6 +33,8 @@ class Organization(Base):
     )
     building_id: Mapped[int] = mapped_column(ForeignKey("buildings.id"))
 
+    __table_args__ = (Index("ix_organizations_title", "title"),)
+
 
 class PhoneNumber(Base):
     __tablename__ = "phone_numbers"
@@ -53,7 +55,10 @@ class Activity(Base):
     parent_id: Mapped[int] = mapped_column(ForeignKey("activities.id"), nullable=True)
     parent: Mapped["Activity"] = relationship(back_populates="children", remote_side="Activity.id")
 
-    __table_args__ = (CheckConstraint("parent_id != id", name="check_parent_id_not_equal_id"), Index("ix_activities_title", "title"),)
+    __table_args__ = (
+        CheckConstraint("parent_id != id", name="check_parent_id_not_equal_id"),
+        Index("ix_activities_title", "title"),
+    )
 
 
 class Building(Base):
