@@ -107,9 +107,9 @@ async def get_organizations_by_area(
 
 @router.get("/buildings_by_area")
 async def get_buildings_by_area(
-    center_lat: Annotated[float, Query()],
-    center_lon: Annotated[float, Query()],
-    delta_km: Annotated[int, Query()],
+    center_lat: Annotated[float, Query(...)],
+    center_lon: Annotated[float, Query(...)],
+    delta_km: Annotated[int, Query(...)],
     session: AsyncSession = Depends(db_helper.get_db),
 ):
 
@@ -118,9 +118,9 @@ async def get_buildings_by_area(
 
 async def get_objects_by_area(
     model: Type,
-    center_lat: Annotated[float, Query()],
-    center_lon: Annotated[float, Query()],
-    delta_km: Annotated[int, Query()],
+    center_lat: Annotated[float, Query(...)],
+    center_lon: Annotated[float, Query(...)],
+    delta_km: Annotated[int, Query(...)],
     session: AsyncSession = Depends(db_helper.get_db),
     join_model: Optional[Type] = None,
 ):
