@@ -9,7 +9,6 @@ from db_helper import db_helper
 from dependencies import validate_api_key
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield

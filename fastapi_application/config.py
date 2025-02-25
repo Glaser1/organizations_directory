@@ -18,7 +18,6 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         env_file=(".env.docker", ".env"),
     )
-
     db: DbSettings
     api_prefix: str = "/api"
     run: RunConfig = RunConfig()
