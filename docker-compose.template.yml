@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${YOUR DB PASSWORD}
       POSTGRES_DB: ${YOUR DB NAME}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d directory" ]
+      test: [ "CMD-SHELL", "pg_isready -U user -d {YOUR DB NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
