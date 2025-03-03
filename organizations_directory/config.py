@@ -1,9 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel, PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DbSettings(BaseModel):
-    url: PostgresDsn
+    url: str
     echo: bool = False
 
 
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         case_sensitive=False,
         env_nested_delimiter="__",
-        env_file=(".env.docker", ".env"),
+        env_file=(".env"),
     )
     db: DbSettings
     api_prefix: str = "/api"

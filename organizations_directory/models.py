@@ -1,5 +1,6 @@
-from sqlalchemy import String, CheckConstraint, ForeignKey, Table, Column, Index
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr, relationship
+from geoalchemy2 import Geometry, WKBElement
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Index, String, Table
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -63,7 +64,5 @@ class Activity(Base):
 
 class Building(Base):
     address: Mapped[str] = mapped_column(String(200), unique=True)
-    latitude: Mapped[float]
-    longitude: Mapped[float]
-
+    geo_location: Mapped[WKBElement] = mapped_column(Geometry(geometry_type="POINT", srid=4326, spatial_index=True))
     organizations: Mapped[list["Organization"]] = relationship(back_populates="building")

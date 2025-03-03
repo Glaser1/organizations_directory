@@ -1,10 +1,9 @@
 import asyncio
 import json
 
-from sqlalchemy import select, delete
-
-from models import Building, Activity, PhoneNumber, Organization, organization_activity
 from db_helper import db_helper
+from models import Activity, Building, Organization, PhoneNumber, organization_activity
+from sqlalchemy import delete, select
 
 with open("test_data.json", "r") as f:
     data = json.load(f)

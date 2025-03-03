@@ -1,10 +1,10 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 
-from config import settings
 from api.views import router as api_router
+from config import settings
 from db_helper import db_helper
 from dependencies import validate_api_key
 
