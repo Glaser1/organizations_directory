@@ -59,9 +59,9 @@ API предоставляет несколько эндопинтов для в
     URL: /api/organizations_by_area
     
     Параметры тела запроса:
-    "km_within"
-    "latitude"
-    "longitude"
+      "km_within"
+      "latitude"
+      "longitude"
 
     Тело ответа:
     [
