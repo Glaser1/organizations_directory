@@ -1,17 +1,14 @@
-import math
 from typing import Annotated, Optional, Type
 
-
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy import select
-from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession
-from geoalchemy2.functions import ST_DWithin, ST_GeogFromText, ST_GeogFromWKB, ST_AsText
+from geoalchemy2.functions import ST_AsText, ST_DWithin, ST_GeogFromText
 
-from api.schemas import BuildingSchema, OrganizationSchema, NearbyObjectsByCoordsSchema
-from models import Activity, Building, Organization, organization_activity
+from api.schemas import BuildingSchema, NearbyObjectsByCoordsSchema, OrganizationSchema
 from config import settings
 from db_helper import db_helper
+from models import Activity, Building, Organization, organization_activity
 
 router = APIRouter(prefix=settings.api_prefix, tags=["Directory"])
 
@@ -89,12 +86,22 @@ async def get_organizations_by_activity_title(
 
 
 async def get_objects_by_area(
-    model: Type, coords_schema: NearbyObjectsByCoordsSchema, session: AsyncSession = Depends(db_helper.get_db)
+    model: Type,
+    coords_schema: NearbyObjectsByCoordsSchema,
+    session: AsyncSession = Depends(db_helper.get_db),
+    join_model: Optional[Type] = None,
 ):
-    lat, long, km_within = coords_schema.lat, coords_schema.long, coords_schema.km_within
-    target_geography = ST_GeogFromText(f"POINT({lat} {long})", srid=4326)
-    nearby_objects = select(model).where(ST_DWithin(model.geo_location, target_geography, 1000 * km_within))
-    result = await session.scalars(nearby_objects)
+    latitude, longitude, km_within = coords_schema.latitude, coords_schema.longitude, coords_schema.km_within
+    target_geography = ST_GeogFromText(f"POINT({longitude} {latitude})", srid=4326)
+
+    stmt = select(model)
+
+    if join_model:
+        stmt = stmt.join(join_model).where(ST_DWithin(join_model.geo_location, target_geography, 1000 * km_within))
+    else:
+        stmt = stmt.where(ST_DWithin(model.geo_location, target_geography, 1000 * km_within))
+
+    result = await session.scalars(stmt)
     return result.all()
 
 
@@ -102,21 +109,11 @@ async def get_objects_by_area(
 async def get_buildings_by_area(
     coords_schema: NearbyObjectsByCoordsSchema, session: AsyncSession = Depends(db_helper.get_db)
 ):
-    latitude, longitude, km_within = coords_schema.latitude, coords_schema.longitude, coords_schema.km_within
-    target_geography = ST_GeogFromText(f"POINT({longitude} {latitude})", srid=4326)
-    nearby_objects = select(Building).where(ST_DWithin(Building.geo_location, target_geography, 1000 * km_within))
-    result = await session.scalars(nearby_objects)
-    return result.all()
+    return await get_objects_by_area(Building, coords_schema, session)
 
 
 @router.post("/ogranizations_by_area", response_model=list[OrganizationSchema])
 async def get_organizations_by_area(
     coords_schema: NearbyObjectsByCoordsSchema, session: AsyncSession = Depends(db_helper.get_db)
 ):
-    latitude, longitude, km_within = coords_schema.latitude, coords_schema.longitude, coords_schema.km_within
-    target_geography = ST_GeogFromText(f"POINT({longitude} {latitude})", srid=4326)
-    nearby_objects = (
-        select(Organization).join(Building).where(ST_DWithin(Building.geo_location, target_geography, 1000 * km_within))
-    )
-    result = await session.scalars(nearby_objects)
-    return result.all()
+    return await get_objects_by_area(Organization, coords_schema, session, Building)
