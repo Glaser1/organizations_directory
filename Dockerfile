@@ -14,7 +14,6 @@ ENV \
     POETRY_HOME=/opt/poetry \
     POETRY_VIRTUALENVS_CREATE=false \
     POETRY_NO_INTERACTION=1 \
-    # POETRY_NO_ROOT=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -24,4 +23,4 @@ ENV PATH="${POETRY_HOME}/bin:${PATH}"
 
 RUN poetry install --only=main --no-interaction
 
-CMD ["python3", "fastapi_application/main.py"]
+CMD ["python3", "organizations_directory/main.py"]
