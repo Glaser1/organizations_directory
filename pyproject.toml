@@ -1,10 +1,8 @@
 [project]
-name = "directory-of-organizations"
+name = "organizations-directory"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Alexandr",email = "sashapliskov@gmail.com"}
-]
+authors = [{ name = "Alexandr", email = "sashapliskov@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -14,7 +12,9 @@ dependencies = [
     "asyncpg (>=0.30.0,<0.31.0)",
     "pydantic[email] (>=2.10.6,<3.0.0)",
     "pydantic-settings (>=2.7.1,<3.0.0)",
-    "uvicorn (>=0.34.0,<0.35.0)"
+    "uvicorn (>=0.34.0,<0.35.0)",
+    "geoalchemy2[shapely] (>=0.17.1,<0.18.0)",
+    "pydantic-extra-types (>=2.10.2,<3.0.0)",
 ]
 
 
@@ -24,4 +24,15 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+isort = "^6.0.1"
+mypy = "^1.15.0"
+flake8 = "^7.1.2"
 
+
+[tool.isort]
+line_length = 120
+profile = "black"
+
+[tool.flake8]
+max-line-length = 120
+ignore = "VNE001,R503,R504,B008"
