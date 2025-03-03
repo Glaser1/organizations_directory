@@ -4,6 +4,8 @@ import json
 from db_helper import db_helper
 from models import Activity, Building, Organization, PhoneNumber, organization_activity
 from sqlalchemy import delete, select
+from geoalchemy2.functions import ST_Point
+
 
 with open("test_data.json", "r") as f:
     data = json.load(f)
@@ -20,7 +22,12 @@ async def seed_test_data():
             await session.commit()
 
             for building in data["buildings"]:
-                session.add(Building(**building))
+                buidling_to_save = Building(
+                    id=building["id"],
+                    address=building["address"],
+                    geo_location=ST_Point(float(building["latitude"]), float(building["longitude"]), srid=4326),
+                )
+                session.add(buidling_to_save)
 
             for activity in data["activities"]:
                 session.add(Activity(**activity))
