@@ -1,8 +1,8 @@
-"""Create tables
+"""initial migration
 
-Revision ID: c44bd83c2890
+Revision ID: 9ebcd4d1010a
 Revises:
-Create Date: 2025-02-15 21:46:08.769100
+Create Date: 2025-03-03 19:57:39.016870
 
 """
 
@@ -10,10 +10,11 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+import geoalchemy2
 
 
 # revision identifiers, used by Alembic.
-revision: str = "c44bd83c2890"
+revision: str = "9ebcd4d1010a"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,23 +27,37 @@ def upgrade() -> None:
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("parent_id", sa.Integer(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.CheckConstraint("parent_id != id", name="check_parent_id_not_equal_id"),
+        sa.CheckConstraint(
+            "parent_id != id", name="check_parent_id_not_equal_id"
+        ),
         sa.ForeignKeyConstraint(
             ["parent_id"],
             ["activities.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_activities_title", "activities", ["title"], unique=False)
+    op.create_index(
+        "ix_activities_title", "activities", ["title"], unique=False
+    )
     op.create_table(
         "buildings",
         sa.Column("address", sa.String(length=200), nullable=False),
-        sa.Column("latitude", sa.Float(), nullable=False),
-        sa.Column("longitude", sa.Float(), nullable=False),
+        sa.Column(
+            "geo_location",
+            geoalchemy2.types.Geometry(
+                geometry_type="POINT",
+                srid=4326,
+                from_text="ST_GeomFromEWKT",
+                name="geometry",
+                nullable=False,
+            ),
+            nullable=False,
+        ),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("address"),
     )
+
     op.create_table(
         "organizations",
         sa.Column("title", sa.String(), nullable=False),
@@ -55,7 +70,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("title"),
     )
-    op.create_index("ix_organizations_title", "organizations", ["title"], unique=False)
+    op.create_index(
+        "ix_organizations_title", "organizations", ["title"], unique=False
+    )
     op.create_table(
         "organization_activity",
         sa.Column("organization_id", sa.Integer(), nullable=False),
@@ -75,46 +92,11 @@ def upgrade() -> None:
         sa.Column("phone", sa.String(length=20), nullable=False),
         sa.Column("organization_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["organization_id"], ["organizations.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["organization_id"], ["organizations.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("phone"),
-    )
-
-    op.execute(
-        """
-    CREATE OR REPLACE FUNCTION check_activity_depth()
-    RETURNS TRIGGER AS $$
-    DECLARE
-        max_depth INT;
-    BEGIN
-        IF NEW.parent_id IS NULL THEN
-            RETURN NEW;
-        END IF;
-
-        WITH RECURSIVE activity_tree AS (
-            SELECT id, parent_id, 1 AS depth FROM activities WHERE id = NEW.parent_id
-            UNION ALL
-            SELECT a.id, a.parent_id, at.depth + 1
-            FROM activities a
-            JOIN activity_tree at ON a.id = at.parent_id
-        )
-        SELECT MAX(activity_tree.depth) INTO max_depth FROM activity_tree;
-
-        IF max_depth > 3 THEN
-            RAISE EXCEPTION 'Maximum nesting depth of activities is 3.';
-        END IF;
-
-        RETURN NEW;
-    END;
-    $$ LANGUAGE plpgsql;
-    """
-    )
-    op.execute(
-        """CREATE TRIGGER activity_depth_trigger
-    BEFORE INSERT OR UPDATE ON activities
-    FOR EACH ROW
-    EXECUTE FUNCTION check_activity_depth();
-    """
     )
     # ### end Alembic commands ###
 
@@ -125,9 +107,12 @@ def downgrade() -> None:
     op.drop_table("organization_activity")
     op.drop_index("ix_organizations_title", table_name="organizations")
     op.drop_table("organizations")
+    op.drop_index(
+        "idx_buildings_geo_location",
+        table_name="buildings",
+        postgresql_using="gist",
+    )
     op.drop_table("buildings")
     op.drop_index("ix_activities_title", table_name="activities")
     op.drop_table("activities")
-    op.execute("DROP TRIGGER IF EXISTS activity_depth_trigger ON activities;")
-    op.execute("DROP FUNCTION IF EXISTS check_activity_depth;")
     # ### end Alembic commands ###
