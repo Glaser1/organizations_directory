@@ -1,6 +1,4 @@
-pgdata/
 docker-compose.template.yml
+.env.dev
 .env.template
-.env
 .git
-.sql
